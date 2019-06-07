@@ -2,6 +2,9 @@
 详情页api
 https://api.bilibili.com/x/web-interface/view?aid=40629179
 
+视频简介详情api
+https://api.bilibili.com/x/web-interface/archive/stat?aid=40629179
+
 视频地址api
 https://api.bilibili.com/x/player/playurl?aid=40629179&cid=71348096&qn=0
 
@@ -74,11 +77,16 @@ def init():
 
 def download_video( path, file_name, file_size):
     with open('{}.flv'.format(file_name), 'wb') as f:
-        r = requests.get(path, stream=True)
-        print('视频大小为{}个字节，开始下载'.format(file_size))
-        for i, chunk in enumerate(r.iter_content(1024)):
-            f.write(chunk)
-            process_bar( (i+1)*1024, file_size)
+        try:
+            r = requests.get(path, stream=True)
+            r.raise_for_status()
+            print('视频大小为{}个字节，开始下载'.format(file_size))
+            for i, chunk in enumerate(r.iter_content(1024)):
+                f.write(chunk)
+                process_bar( (i+1)*1024, file_size)
+        except Exception as e:
+            print('error : {}'.format(e))
+
 
 def process_bar(current, all):
     length = 100
